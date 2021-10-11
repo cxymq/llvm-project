@@ -1216,6 +1216,183 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   return LLVMStyle;
 }
 
+FormatStyle getLLVMEvanStyle(FormatStyle::LanguageKind Language) {
+  FormatStyle LLVMStyle;
+  LLVMStyle.InheritsParentConfig = false;
+  LLVMStyle.Language = Language;
+  LLVMStyle.AccessModifierOffset = -1;
+  LLVMStyle.AlignEscapedNewlines = FormatStyle::ENAS_Right;
+  LLVMStyle.AlignAfterOpenBracket = FormatStyle::BAS_Align;
+  LLVMStyle.AlignArrayOfStructures = FormatStyle::AIAS_None;
+  LLVMStyle.AlignOperands = FormatStyle::OAS_DontAlign;
+  LLVMStyle.AlignTrailingComments = true;
+  LLVMStyle.AlignConsecutiveAssignments = FormatStyle::ACS_None;
+  LLVMStyle.AlignConsecutiveBitFields = FormatStyle::ACS_None;
+  LLVMStyle.AlignConsecutiveDeclarations = FormatStyle::ACS_None;
+  // 宏排列连贯
+  LLVMStyle.AlignConsecutiveMacros = FormatStyle::ACS_Consecutive;
+    // 新增
+    LLVMStyle.AlignEscapedNewlines = FormatStyle::ENAS_Left;
+  LLVMStyle.AllowAllArgumentsOnNextLine = true;
+  LLVMStyle.AllowAllParametersOfDeclarationOnNextLine = false;
+  LLVMStyle.AllowShortEnumsOnASingleLine = true;
+  LLVMStyle.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_None;
+  LLVMStyle.AllowShortBlocksOnASingleLine = FormatStyle::SBS_Never;
+  LLVMStyle.AllowShortCaseLabelsOnASingleLine = false;
+  LLVMStyle.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
+  LLVMStyle.AllowShortLambdasOnASingleLine = FormatStyle::SLS_All;
+  LLVMStyle.AllowShortLoopsOnASingleLine = false;
+  LLVMStyle.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
+  LLVMStyle.AlwaysBreakAfterDefinitionReturnType = FormatStyle::DRTBS_None;
+  LLVMStyle.AlwaysBreakBeforeMultilineStrings = false;
+  LLVMStyle.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_No;
+  LLVMStyle.AttributeMacros.push_back("__capability");
+  LLVMStyle.BinPackArguments = true;
+  LLVMStyle.BinPackParameters = true;
+  LLVMStyle.BreakBeforeBinaryOperators = FormatStyle::BOS_None;
+  LLVMStyle.BreakBeforeConceptDeclarations = true;
+  LLVMStyle.BreakBeforeTernaryOperators = false;
+  LLVMStyle.BreakBeforeBraces = FormatStyle::BS_Custom;
+    LLVMStyle.BreakConstructorInitializers = FormatStyle::BCIS_AfterColon;
+  LLVMStyle.BraceWrapping = {/*AfterCaseLabel=*/false,
+                             /*AfterClass=*/true,
+                             /*AfterControlStatement=*/FormatStyle::BWACS_Never,
+                             /*AfterEnum=*/false,
+                             /*AfterFunction=*/false,
+                             /*AfterNamespace=*/true,
+                             /*AfterObjCDeclaration=*/false,
+                             /*AfterStruct=*/false,
+                             /*AfterUnion=*/false,
+                             /*AfterExternBlock=*/false,
+                             /*BeforeCatch=*/false,
+                             /*BeforeElse=*/false,
+                             /*BeforeLambdaBody=*/false,
+                             /*BeforeWhile=*/false,
+                             /*IndentBraces=*/false,
+                             /*SplitEmptyFunction=*/true,
+                             /*SplitEmptyRecord=*/true,
+                             /*SplitEmptyNamespace=*/true};
+  LLVMStyle.IndentExternBlock = FormatStyle::IEBS_AfterExternBlock;
+  LLVMStyle.BreakAfterJavaFieldAnnotations = false;
+  LLVMStyle.BreakConstructorInitializers = FormatStyle::BCIS_BeforeColon;
+  LLVMStyle.BreakInheritanceList = FormatStyle::BILS_BeforeColon;
+  LLVMStyle.BreakStringLiterals = true;
+  LLVMStyle.ColumnLimit = 0;
+  LLVMStyle.CommentPragmas = "^ IWYU pragma:";
+  LLVMStyle.CompactNamespaces = false;
+  LLVMStyle.ConstructorInitializerIndentWidth = 4;
+    LLVMStyle.ConstructorInitializerAllOnOneLineOrOnePerLine = true;
+  LLVMStyle.ContinuationIndentWidth = 4;
+  LLVMStyle.Cpp11BracedListStyle = false;
+
+  // Off by default Qualifier ordering
+  LLVMStyle.QualifierAlignment = FormatStyle::QAS_Leave;
+
+  LLVMStyle.DeriveLineEnding = true;
+  LLVMStyle.DerivePointerAlignment = false;
+  LLVMStyle.EmptyLineAfterAccessModifier = FormatStyle::ELAAMS_Never;
+  LLVMStyle.EmptyLineBeforeAccessModifier = FormatStyle::ELBAMS_LogicalBlock;
+  LLVMStyle.ExperimentalAutoDetectBinPacking = false;
+  LLVMStyle.PackConstructorInitializers = FormatStyle::PCIS_BinPack;
+  LLVMStyle.FixNamespaceComments = true;
+  LLVMStyle.ForEachMacros.push_back("foreach");
+  LLVMStyle.ForEachMacros.push_back("Q_FOREACH");
+  LLVMStyle.ForEachMacros.push_back("BOOST_FOREACH");
+  LLVMStyle.IfMacros.push_back("KJ_IF_MAYBE");
+  LLVMStyle.IncludeStyle.IncludeCategories = {
+      {"^\"(llvm|llvm-c|clang|clang-c)/", 2, 0, false},
+      {"^(<|\"(gtest|gmock|isl|json)/)", 3, 0, false},
+      {".*", 1, 0, false}};
+  LLVMStyle.IncludeStyle.IncludeIsMainRegex = "(Test)?$";
+  LLVMStyle.IncludeStyle.IncludeBlocks = tooling::IncludeStyle::IBS_Preserve;
+  LLVMStyle.IndentAccessModifiers = false;
+  LLVMStyle.IndentCaseLabels = true;
+  LLVMStyle.IndentCaseBlocks = false;
+  LLVMStyle.IndentGotoLabels = true;
+  LLVMStyle.IndentPPDirectives = FormatStyle::PPDIS_None;
+  LLVMStyle.IndentRequires = false;
+  LLVMStyle.IndentWrappedFunctionNames = false;
+  LLVMStyle.IndentWidth = 4;
+    // IndentFunctionDeclarationAfterType 无
+  LLVMStyle.PPIndentWidth = -1;
+  LLVMStyle.InsertTrailingCommas = FormatStyle::TCS_None;
+  LLVMStyle.JavaScriptQuotes = FormatStyle::JSQS_Leave;
+  LLVMStyle.JavaScriptWrapImports = true;
+  LLVMStyle.TabWidth = 8;
+  LLVMStyle.LambdaBodyIndentation = FormatStyle::LBI_Signature;
+  LLVMStyle.MaxEmptyLinesToKeep = 2;
+  LLVMStyle.KeepEmptyLinesAtTheStartOfBlocks = false;
+  LLVMStyle.NamespaceIndentation = FormatStyle::NI_Inner;
+  LLVMStyle.ObjCBinPackProtocolList = FormatStyle::BPS_Auto;
+  LLVMStyle.ObjCBlockIndentWidth = 4;
+  LLVMStyle.ObjCBreakBeforeNestedBlockParam = true;
+  LLVMStyle.ObjCSpaceAfterProperty = true;
+  LLVMStyle.ObjCSpaceBeforeProtocolList = true;
+  LLVMStyle.PointerAlignment = FormatStyle::PAS_Right;
+  LLVMStyle.ReferenceAlignment = FormatStyle::RAS_Pointer;
+  LLVMStyle.ShortNamespaceLines = 1;
+  LLVMStyle.SpacesBeforeTrailingComments = 1;
+  LLVMStyle.Standard = FormatStyle::LS_Auto;
+  LLVMStyle.UseCRLF = false;
+  LLVMStyle.UseTab = FormatStyle::UT_Never;
+  LLVMStyle.ReflowComments = true;
+  LLVMStyle.SpacesInParentheses = false;
+  LLVMStyle.SpacesInSquareBrackets = false;
+  LLVMStyle.SpaceInEmptyBlock = false;
+  LLVMStyle.SpaceInEmptyParentheses = false;
+  LLVMStyle.SpacesInContainerLiterals = false;
+  LLVMStyle.SpacesInCStyleCastParentheses = false;
+  LLVMStyle.SpacesInLineCommentPrefix = {/*Minimum=*/1, /*Maximum=*/-1u};
+  LLVMStyle.SpaceAfterCStyleCast = false;
+  LLVMStyle.SpaceAfterLogicalNot = false;
+  LLVMStyle.SpaceAfterTemplateKeyword = true;
+  LLVMStyle.SpaceAroundPointerQualifiers = FormatStyle::SAPQ_Default;
+  LLVMStyle.SpaceBeforeCaseColon = false;
+  LLVMStyle.SpaceBeforeCtorInitializerColon = true;
+  LLVMStyle.SpaceBeforeInheritanceColon = true;
+  LLVMStyle.SpaceBeforeParens = FormatStyle::SBPO_ControlStatements;
+  LLVMStyle.SpaceBeforeRangeBasedForLoopColon = true;
+  LLVMStyle.SpaceBeforeAssignmentOperators = true;
+  LLVMStyle.SpaceBeforeCpp11BracedList = false;
+  LLVMStyle.SpaceBeforeSquareBrackets = false;
+  LLVMStyle.BitFieldColonSpacing = FormatStyle::BFCS_Both;
+  LLVMStyle.SpacesInAngles = FormatStyle::SIAS_Never;
+  LLVMStyle.SpacesInConditionalStatement = false;
+
+  LLVMStyle.PenaltyBreakAssignment = prec::Assignment;
+  LLVMStyle.PenaltyBreakComment = 300;
+  LLVMStyle.PenaltyBreakFirstLessLess = 150;
+  LLVMStyle.PenaltyBreakString = 1000;
+  LLVMStyle.PenaltyExcessCharacter = 1000000;
+  LLVMStyle.PenaltyReturnTypeOnItsOwnLine = 200;
+  LLVMStyle.PenaltyBreakBeforeFirstCallParameter = 10000;
+  LLVMStyle.PenaltyBreakTemplateDeclaration = prec::Relational;
+  LLVMStyle.PenaltyIndentedWhitespace = 0;
+
+  LLVMStyle.DisableFormat = false;
+  LLVMStyle.SortIncludes = FormatStyle::SI_CaseSensitive;
+  LLVMStyle.SortJavaStaticImport = FormatStyle::SJSIO_Before;
+  LLVMStyle.SortUsingDeclarations = true;
+  LLVMStyle.StatementAttributeLikeMacros.push_back("Q_EMIT");
+  LLVMStyle.StatementMacros.push_back("Q_UNUSED");
+  LLVMStyle.StatementMacros.push_back("QT_REQUIRE_VERSION");
+  LLVMStyle.WhitespaceSensitiveMacros.push_back("STRINGIZE");
+  LLVMStyle.WhitespaceSensitiveMacros.push_back("PP_STRINGIZE");
+  LLVMStyle.WhitespaceSensitiveMacros.push_back("BOOST_PP_STRINGIZE");
+  LLVMStyle.WhitespaceSensitiveMacros.push_back("NS_SWIFT_NAME");
+  LLVMStyle.WhitespaceSensitiveMacros.push_back("CF_SWIFT_NAME");
+
+  // Defaults that differ when not C++.
+  if (Language == FormatStyle::LK_TableGen) {
+    LLVMStyle.SpacesInContainerLiterals = false;
+  }
+  if (LLVMStyle.isJson()) {
+    LLVMStyle.ColumnLimit = 0;
+  }
+
+  return LLVMStyle;
+}
+
 FormatStyle getGoogleStyle(FormatStyle::LanguageKind Language) {
   if (Language == FormatStyle::LK_TextProto) {
     FormatStyle GoogleStyle = getGoogleStyle(FormatStyle::LK_Proto);
@@ -3304,5 +3481,127 @@ llvm::Expected<FormatStyle> getStyle(StringRef StyleName, StringRef FileName,
   return FallbackStyle;
 }
 
+llvm::Expected<FormatStyle> getStyleWithLanguage(StringRef StyleName, StringRef FileName,
+                                     StringRef FallbackStyleName,
+                                     FormatStyle::LanguageKind languageKind,
+                                     StringRef formatPath,
+                                     StringRef Code, llvm::vfs::FileSystem *FS,
+                                     bool AllowUnknownOptions) {
+//    printf("getStyleWithLanguage \n");
+    if (!FS) {
+        FS = llvm::vfs::getRealFileSystem().get();
+    }
+    FormatStyle Style = getLLVMEvanStyle();
+    // 改动点1：根据文件名获取语言类型
+    Style.Language = languageKind;
+    return Style;
+    /*
+     粗略的判断是否是oc代码
+     */
+    /*if (Style.Language == FormatStyle::LK_Cpp && FileName.endswith(".h") &&
+        (Code.contains("\n- (") || Code.contains("\n+ (") ||
+         Code.contains("\n@end\n") || Code.contains("\n@end ") ||
+         Code.endswith("@end")))
+        Style.Language = FormatStyle::LK_ObjC;
+    printf("FormatStyle %d \n", Style.Language);
+    // 获取一个空格式（实际上是llvm，只是被禁用了）
+    FormatStyle FallbackStyle = getNoStyle();
+    if (!getPredefinedStyle(FallbackStyleName, Style.Language, &FallbackStyle)) {
+        printf("Invalid fallback style \n");
+        return make_string_error("Invalid fallback style \"" + FallbackStyleName);
+    }
+    
+    // 如果StyleName是{开始的，那么就认为是YAML或者json格式
+    if (StyleName.startswith("{")) {
+        // Parse YAML/JSON style from the command line.
+        printf("Parse YAML/JSON style from the command line. \n");
+        if (std::error_code ec = parseConfiguration(StyleName, &Style))
+            return make_string_error("Error parsing -style: " + ec.message());
+        return Style;
+    }
+    // 如果StyleName不是file，那么获取一个空格式，并且将语言类型赋值给它
+    if (!StyleName.equals_insensitive("file")) {
+        printf("StyleName不是file，那么获取一个空格式 \n");
+        if (!getPredefinedStyle(StyleName, Style.Language, &Style))
+            return make_string_error("Invalid value for -style");
+        return Style;
+    }
+    printf("StyleName是file，那么需要去查找.clang-format或者_clang-format文件 \n");
+    // 到这里StyleName只能是file了，那么需要去查找.clang-format或者_clang-format文件
+    // Look for .clang-format/_clang-format file in the file's parent directories.
+    SmallString<128> UnsuitableConfigFiles;
+    // 改动点2：获取文件路径
+    SmallString<128> Path(formatPath);
+    // 获取绝对路径
+    if (std::error_code EC = FS->makeAbsolute(Path)) {
+        printf("获取绝对路径 error");
+        return make_string_error(EC.message());
+    }
+    
+    // for循环查找配置文件
+    for (StringRef Directory = Path; !Directory.empty();
+         Directory = llvm::sys::path::parent_path(Directory)) {
+        printf("Directory %s \n", Directory);
+        auto Status = FS->status(Directory);
+        if (!Status ||
+            Status->getType() != llvm::sys::fs::file_type::directory_file) {
+            printf("Status error \n");
+            continue;
+        }
+        
+        SmallString<128> ConfigFile(Directory);
+        printf("ConfigFile %s \n", ConfigFile.c_str());
+        
+        llvm::sys::path::append(ConfigFile, ".clang-format");
+        LLVM_DEBUG(llvm::dbgs() << "Trying " << ConfigFile << "...\n");
+
+//        Status = FS->status(ConfigFile.str());
+//        printf("ConfigFile %s \n", ConfigFile.str());
+//        Status = FS->status(ConfigFile.str());
+        bool FoundConfigFile = Status && (Status->getType() == llvm::sys::fs::file_type::regular_file);
+        printf("11获取绝FoundConfigFile success %d \n", FoundConfigFile);
+        if (!FoundConfigFile) {
+            // Try _clang-format too, since dotfiles are not commonly used on Windows.
+            ConfigFile = Directory;
+            llvm::sys::path::append(ConfigFile, "_clang-format");
+            LLVM_DEBUG(llvm::dbgs() << "Trying " << ConfigFile << "...\n");
+            Status = FS->status(ConfigFile.str());
+            FoundConfigFile = Status && (Status->getType() ==
+                                         llvm::sys::fs::file_type::regular_file);
+        }
+        printf("22获取绝FoundConfigFile success %d \n", FoundConfigFile);
+        if (FoundConfigFile) {
+            llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> Text = FS->getBufferForFile(ConfigFile.str());
+            if (std::error_code EC = Text.getError()) {
+                printf("getBufferForFile error %s \n", EC.message().c_str());
+                return make_string_error(EC.message());
+            }
+            printf("getBufferForFile success \n");
+            if (std::error_code ec =
+                parseConfiguration(Text.get()->getBuffer(), &Style)) {
+                if (ec == ParseError::Unsuitable) {
+                    if (!UnsuitableConfigFiles.empty())
+                        UnsuitableConfigFiles.append(", ");
+                    UnsuitableConfigFiles.append(ConfigFile);
+                    continue;
+                }
+                printf("parseConfiguration error \n");
+                return make_string_error("Error reading " + ConfigFile + ": " +
+                                         ec.message());
+            }
+            printf("use FoundConfigFile \n");
+            LLVM_DEBUG(llvm::dbgs() << "Using configuration file " << ConfigFile << "\n");
+            return Style;
+        }
+    }
+//    printf("UnsuitableConfigFiles \n");
+    if (!UnsuitableConfigFiles.empty())
+        return make_string_error("Configuration file(s) do(es) not support " +
+                                 getLanguageName(Style.Language) + ": " +
+                                 UnsuitableConfigFiles);
+    return FallbackStyle;*/
+}
+
 } // namespace format
 } // namespace clang
+

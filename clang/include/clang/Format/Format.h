@@ -3650,6 +3650,8 @@ private:
 FormatStyle getLLVMStyle(
     FormatStyle::LanguageKind Language = FormatStyle::LanguageKind::LK_Cpp);
 
+FormatStyle getLLVMEvanStyle(FormatStyle::LanguageKind Language = FormatStyle::LanguageKind::LK_ObjC);
+
 /// Returns a format style complying with one of Google's style guides:
 /// http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml.
 /// http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml.
@@ -3863,6 +3865,14 @@ llvm::Expected<FormatStyle> getStyle(StringRef StyleName, StringRef FileName,
                                      llvm::vfs::FileSystem *FS = nullptr,
                                      bool AllowUnknownOptions = false);
 
+llvm::Expected<FormatStyle> getStyleWithLanguage(StringRef StyleName, StringRef FileName,
+                                     StringRef FallbackStyle,
+                                     FormatStyle::LanguageKind languageKind = FormatStyle::LK_ObjC,
+                                     StringRef formatPath = "",
+                                     StringRef Code = "",
+                                     llvm::vfs::FileSystem *FS = nullptr,
+                                     bool AllowUnknownOptions = false);
+
 // Guesses the language from the ``FileName`` and ``Code`` to be formatted.
 // Defaults to FormatStyle::LK_Cpp.
 FormatStyle::LanguageKind guessLanguage(StringRef FileName, StringRef Code);
@@ -3902,3 +3912,4 @@ struct is_error_code_enum<clang::format::ParseError> : std::true_type {};
 } // namespace std
 
 #endif // LLVM_CLANG_FORMAT_FORMAT_H
+

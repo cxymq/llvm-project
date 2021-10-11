@@ -361,6 +361,120 @@ static void outputXML(const Replacements &Replaces,
   outs() << "</replacements>\n";
 }
 
+static bool jr_format(StringRef content, StringRef languageKind, StringRef formatPath) {
+    std::unique_ptr<llvm::MemoryBuffer> Code = llvm::MemoryBuffer::getMemBuffer(content);
+    if (Code->getBufferSize() == 0)
+      return false; // Empty files are formatted correctly.
+    std::vector<tooling::Range> Ranges;
+    if (fillRanges(Code.get(), Ranges))
+      return true;
+   
+    /*
+     需要根据文件名来获取.clang-format文件。但是如果该可执行文件在xcode extension中，是没有权限读取文件内容的。因此会导致失败
+     
+     解决方法：
+     由外部直接读取.clang-format文件内容，直接传递给可执行文件。
+     */
+    FormatStyle::LanguageKind lk;
+    if (languageKind.endswith_insensitive("objc")) {
+        lk = FormatStyle::LK_ObjC;
+    } else if (languageKind.endswith_insensitive("cpp")) {
+        lk = FormatStyle::LK_Cpp;
+    } else if (languageKind.endswith_insensitive("java")) {
+        lk = FormatStyle::LK_Java;
+    } else if (languageKind.endswith_insensitive("js") ||
+               languageKind.endswith_insensitive("javascript")) {
+        lk = FormatStyle::LK_JavaScript;
+    } else if (languageKind.endswith_insensitive("proto") ||
+               languageKind.endswith_insensitive("protodevel")) {
+        lk = FormatStyle::LK_Proto;
+    } else if (languageKind.endswith_insensitive(".textpb") ||
+               languageKind.endswith_insensitive(".pb.txt") ||
+               languageKind.endswith_insensitive(".textproto") ||
+               languageKind.endswith_insensitive(".asciipb")) {
+        lk = FormatStyle::LK_TextProto;
+    } else if (languageKind.endswith_insensitive(".td")) {
+        lk = FormatStyle::LK_TableGen;
+    } else {
+        lk = FormatStyle::LK_Cpp;
+    }
+    
+//    printf("文件格式：%d \n", lk);
+   
+    // <stdin>就是AssumedFileName的默认值
+    StringRef AssumedFileName("<stdin>");
+
+    llvm::Expected<FormatStyle> FormatStyle =
+        getStyleWithLanguage(Style, AssumedFileName, FallbackStyle, lk, formatPath, Code->getBuffer());
+//    printf("Code: %s", content);
+    if (!FormatStyle) {
+        llvm::errs() << llvm::toString(FormatStyle.takeError()) << "\n";
+//        printf("文件格式 clang format 获取失败");
+      return true;
+    }
+//    printf("文件格式 clang format 获取成功");
+    if (SortIncludes.getNumOccurrences() != 0)
+        FormatStyle->SortIncludes = FormatStyle::SI_CaseSensitive;
+    unsigned CursorPosition = Cursor;
+    Replacements Replaces = sortIncludes(*FormatStyle, Code->getBuffer(), Ranges,
+                                         AssumedFileName, &CursorPosition);
+    auto ChangedCode = tooling::applyAllReplacements(Code->getBuffer(), Replaces);
+    if (!ChangedCode) {
+      llvm::errs() << llvm::toString(ChangedCode.takeError()) << "\n";
+      return true;
+    }
+//    printf("文件格式 ChangedCode 成功");
+    // Get new affected ranges after sorting `#includes`.
+    Ranges = tooling::calculateRangesAfterReplacements(Replaces, Ranges);
+    FormattingAttemptStatus Status;
+    Replacements FormatChanges = reformat(*FormatStyle, *ChangedCode, Ranges,
+                                          AssumedFileName, &Status);
+    Replaces = Replaces.merge(FormatChanges);
+    if (OutputXML) {
+      outs() << "<?xml version='1.0'?>\n<replacements "
+                "xml:space='preserve' incomplete_format='"
+             << (Status.FormatComplete ? "false" : "true") << "'";
+      if (!Status.FormatComplete)
+        outs() << " line='" << Status.Line << "'";
+      outs() << ">\n";
+      if (Cursor.getNumOccurrences() != 0)
+        outs() << "<cursor>"
+               << FormatChanges.getShiftedCodePosition(CursorPosition)
+               << "</cursor>\n";
+
+      outputReplacementsXML(Replaces);
+      outs() << "</replacements>\n";
+    } else {
+      IntrusiveRefCntPtr<vfs::InMemoryFileSystem> InMemoryFileSystem(
+          new vfs::InMemoryFileSystem);
+      FileManager Files(FileSystemOptions(), InMemoryFileSystem);
+      DiagnosticsEngine Diagnostics(
+          IntrusiveRefCntPtr<DiagnosticIDs>(new DiagnosticIDs),
+          new DiagnosticOptions);
+      SourceManager Sources(Diagnostics, Files);
+      FileID ID = createInMemoryFile(AssumedFileName, *Code, Sources, Files,
+                                       InMemoryFileSystem.get());
+      Rewriter Rewrite(Sources, LangOptions());
+      tooling::applyAllReplacements(Replaces, Rewrite);
+      if (Inplace) {
+        if (Rewrite.overwriteChangedFiles())
+          return true;
+      } else {
+          if (Cursor.getNumOccurrences() != 0) {
+            outs() << "{ \"Cursor\": "
+                   << FormatChanges.getShiftedCodePosition(CursorPosition)
+                   << ", \"IncompleteFormat\": "
+                   << (Status.FormatComplete ? "false" : "true");
+            if (!Status.FormatComplete)
+              outs() << ", \"Line\": " << Status.Line;
+            outs() << " }\n";
+          }
+        Rewrite.getEditBuffer(ID).write(outs());
+      }
+    }
+    return false;
+}
+
 // Returns true on error.
 static bool format(StringRef FileName) {
   if (!OutputXML && Inplace && FileName == "-") {
@@ -538,6 +652,30 @@ static int dumpConfig() {
   return 0;
 }
 
+/*
+ 文件内容，因为使用xcodeExtensions的时候，只能拿到代码，不能拿到文件
+ */
+static cl::opt<std::string>
+FileContent("s",
+            cl::desc("the content of file."),
+            cl::cat(ClangFormatCategory));
+
+/*
+ 语言类型，正常会根据传入的文件名来解析语言，但是因为无法拿到文件，因此这里语言直接让外部指定
+ */
+static cl::opt<std::string>
+FileLanguage("l",
+              cl::desc("the language of format."),
+              cl::init("objc"), cl::cat(ClangFormatCategory));
+
+/*
+ format文件路径。一般会根据传入的文件所在目录开始查找。但是这个无法取到文件，因此format文件路径也需要外部指定，并且保证是可读的。
+ */
+static cl::opt<std::string>
+FormatPath("p",
+           cl::desc("the .clang-format file's path."),
+           cl::cat(ClangFormatCategory));
+
 int main(int argc, const char **argv) {
   llvm::InitLLVM X(argc, argv);
 
@@ -564,6 +702,12 @@ int main(int argc, const char **argv) {
   }
 
   bool Error = false;
+    // -------------改动点：直接处理文件内容
+    if (!FileContent.empty()) {
+        Error |= clang::format::jr_format(FileContent, FileLanguage, FormatPath);
+        return Error ? 1 : 0;
+    }
+    // ------------
   if (FileNames.empty()) {
     Error = clang::format::format("-");
     return Error ? 1 : 0;
@@ -581,3 +725,4 @@ int main(int argc, const char **argv) {
   }
   return Error ? 1 : 0;
 }
+
