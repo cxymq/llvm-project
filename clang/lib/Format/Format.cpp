@@ -1288,7 +1288,7 @@ FormatStyle getLLVMEvanStyle(FormatStyle::LanguageKind Language) {
   // Off by default Qualifier ordering
   LLVMStyle.QualifierAlignment = FormatStyle::QAS_Leave;
 
-  LLVMStyle.DeriveLineEnding = true;
+//  LLVMStyle.DeriveLineEnding = true;
   LLVMStyle.DerivePointerAlignment = false;
   LLVMStyle.EmptyLineAfterAccessModifier = FormatStyle::ELAAMS_Never;
   LLVMStyle.EmptyLineBeforeAccessModifier = FormatStyle::ELBAMS_LogicalBlock;
@@ -1346,7 +1346,8 @@ FormatStyle getLLVMEvanStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.SpaceAfterCStyleCast = false;
   LLVMStyle.SpaceAfterLogicalNot = false;
   LLVMStyle.SpaceAfterTemplateKeyword = true;
-  LLVMStyle.SpaceAroundPointerQualifiers = FormatStyle::SAPQ_Default;
+    // 限定词前后加空格
+  LLVMStyle.SpaceAroundPointerQualifiers = FormatStyle::SAPQ_Both;
   LLVMStyle.SpaceBeforeCaseColon = false;
   LLVMStyle.SpaceBeforeCtorInitializerColon = true;
   LLVMStyle.SpaceBeforeInheritanceColon = true;
